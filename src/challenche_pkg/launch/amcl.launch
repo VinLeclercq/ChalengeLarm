@@ -6,11 +6,10 @@
         output="screen">
     </node>
   <arg name="use_map_topic" default="true"/>
-  <arg name="scan_topic" default="/scan" />
  
     <node pkg="amcl" type="amcl" name="amcl">
     
-    <remap from="scan" to="/scan" />
+    <remap from="scan" to="scan" />
   <remap from="cmd_vel" to="/cmd_vel"/>
   <remap from="odom" to="/odom" />
  
@@ -39,11 +38,10 @@
   <param name="laser_likelihood_max_dist" value="2.0"/>
   <param name="update_min_d" value="0.2"/>
   <param name="update_min_a" value="0.5"/>
-  <param name="odom_frame_id" value="summit_xl_a_odom"/>
-  <param name="base_frame_id" value="summit_xl_a_base_footprint"/>
+  <param name="odom_frame_id" value="/odom"/>
+  <param name="base_frame_id" value="/base_footprint"/>
   <param name="global_frame_id" value="map"/>
   <param name="resample_interval" value="1"/>
-  <param name="transform_tolerance" value="0.1"/>
   <param name="recovery_alpha_slow" value="0.0"/>
   <param name="recovery_alpha_fast" value="0.0"/>
   <param name="initial_pose_x" value ="0.0"/>
