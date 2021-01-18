@@ -11,19 +11,19 @@
 
     <param name="base_global_planner" value="$(arg base_global_planner)"/>
     <param name="base_local_planner" value="$(arg base_local_planner)"/>
-    <rosparam file="$(find challenche_pkg)/params/move_base_params.yaml" command="load"/>
+    <rosparam file="$(find challenche_pkg)/params2/move_base_params.yaml" command="load"/>
 
     <!-- observation sources located in costmap_common.yaml -->
-    <rosparam file="$(find challenche_pkg)/params/costmap_common.yaml" command="load" ns="global_costmap" />
-    <rosparam file="$(find challenche_pkg)/params/costmap_common.yaml" command="load" ns="local_costmap" />
+    <rosparam file="$(find challenche_pkg)/params2/costmap_common.yaml" command="load" ns="global_costmap" />
+    <rosparam file="$(find challenche_pkg)/params2/costmap_common.yaml" command="load" ns="local_costmap" />
 
     <!-- local costmap, needs size -->
-    <rosparam file="$(find challenche_pkg)/params/costmap_local.yaml" command="load" ns="local_costmap" />
+    <rosparam file="$(find challenche_pkg)/params2/costmap_local.yaml" command="load" ns="local_costmap" />
     <param name="local_costmap/width" value="10.0"/>
     <param name="local_costmap/height" value="10.0"/>
 
     <!-- static global costmap, static map provides size -->
-    <rosparam file="$(find challenche_pkg)/params/costmap_global.yaml" command="load" ns="global_costmap" unless="$(arg no_static_map)"/>
+    <rosparam file="$(find challenche_pkg)/params2/costmap_global.yaml" command="load" ns="global_costmap" unless="$(arg no_static_map)"/>
 
   </node>
 
