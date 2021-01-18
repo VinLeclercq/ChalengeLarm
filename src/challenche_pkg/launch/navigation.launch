@@ -1,5 +1,4 @@
 <launch>
-    <node pkg="challenche_pkg" type="amcl.launch" name="amcl_node" output="screen"></node>
-    <node pkg="challenche_pkg" type="move_base.launch" name="move_node" output="screen">
-    </node>
+    <include file="$(find challenche_pkg)/launch/gmapping.launch"/>
+    <include file="$(find challenche_pkg)/launch/move_base.launch"/>
 </launch>
