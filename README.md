@@ -30,7 +30,7 @@ source devel/setup.bash
 
 Vous devriez avoir le package `challenche_pkg` dans votre dossier `catkin_ws`
 
-![installation_repo](doc/install_git.png "le package challenche_pkg est dans catkin_ws/src")
+![installation_repo](src/doc/install_git.png "le package challenche_pkg est dans catkin_ws/src")
 
 ## Lancer les différents challenges
 ### Configuration générale
@@ -57,4 +57,24 @@ roslaunch challenche_pkg navigation.launch
 
 ### Challenge 2
 
+- Lancer le launch de mapping
+
+```bash
+roslaunch challenche_pkg mapping.launch
+```
+
+- Utiliser l'outil *2D Nav Goal* sur RViz pour donner une destination **sur une zone grise connue** au robot (la carte se met à jour automatiquement)
+
+- Les positions des cannettes sont envoyées sur le topic ```/bottle```
+
 ### Challenge 3
+
+- Lancer le launch de exploration
+
+```bash
+roslaunch challenche_pkg exploration.launch
+```
+
+- Utiliser l'outil *Publish Point* pour placer plusieurs points de sorte à avoir un polygone **fermé** et réutiliser l'outil dans ce polygone. Le robot devrait se mettre à explorer la zone de manière autonome.
+
+- Les positions des cannettes sont envoyées sur le topic ```/bottle```

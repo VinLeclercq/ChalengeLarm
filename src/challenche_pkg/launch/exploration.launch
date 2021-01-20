@@ -1,0 +1,4 @@
+<launch>
+    <include file="$(find challenche_pkg)/launch/mapping.launch"/>
+    <include file="$(find challenche_pkg)/launch/frontier_explo.launch"/>
+</launch>
