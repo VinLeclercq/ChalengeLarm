@@ -1,9 +1,8 @@
 <launch>
     <include file="$(find challenche_pkg)/launch/navigation.launch"/>
     <node pkg ="challenche_pkg"
-        type="map_server"
-        name="map_server"
-        args="$(find challenche_pkg)/script/bottle.py"
+        type="bottle.py"
+        name="bottle"
         output="screen">
     </node>
 </launch>
