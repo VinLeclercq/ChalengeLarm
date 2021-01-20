@@ -75,6 +75,8 @@ roslaunch challenche_pkg mapping.launch
 roslaunch challenche_pkg exploration.launch
 ```
 
+- Ajouter l'outil *Markers* et sélectionner le bon topic sur RViz pour voir où vous placez vos points ci-après.
+
 - Utiliser l'outil *Publish Point* pour placer plusieurs points de sorte à avoir un polygone **fermé** et réutiliser l'outil dans ce polygone. Le robot devrait se mettre à explorer la zone de manière autonome.
 
 - Les positions des cannettes sont envoyées sur le topic ```/bottle```
