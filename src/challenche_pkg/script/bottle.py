@@ -3,22 +3,12 @@ import rospy
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 from std_srvs.srv import Empty, EmptyResponse # you import the service message python classes generated from Empty.srv.
-import service_bottle.py
+from geometry_msgs.msg import Point
+from move_base_msgs.msg import MoveBaseAction, MoveBaseActionFeedback
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
-from geometry_msgs.msg import Pose
-from move_base_msgs.msg import MoveBaseAction, MoveBaseActionFeedback
-
-def my_callback(request):
-    global pose_result
-    print "[ BOTTLE ] Found at :"
-    print pose_result
-    return EmptyResponse()
-
-def move_base_pose_callback(msg):
-    global pose_result
-    pose_result = msg.feedback.base_position.pose
+from nav_msgs.msg import Odometry
 
 
 class LoadFeature(object):
@@ -28,6 +18,12 @@ class LoadFeature(object):
         self.image_sub = rospy.Subscriber("/camera/rgb/image_raw",Image,self.camera_callback)
         self.bridge_object = CvBridge()
         self.x = 4
+        self.pose_result = Point()
+        self.pose_pub = rospy.Publisher('/bottle', Point, queue_size=1)
+        
+
+    def my_position_callback(self, msg):
+        self.pose_result = msg.pose.pose.position
 
     def camera_callback(self,data):
         try:
@@ -35,11 +31,13 @@ class LoadFeature(object):
             cv_image = self.bridge_object.imgmsg_to_cv2(data, desired_encoding="bgr8")
         except CvBridgeError as e:
             print(e)
+            print("pas d image en entree de camera")
         
         try:
             image_1 = cv2.imread('/home/user/catkin_ws/src/challenche_pkg/pictures/bottle.jpg',1)
         except CvBridgeError as e:
             print(e)
+            print("pas d'image dans le dossier, placez vous devant une cannette et tapez 'rosrun challenche_pkg pictures.py'")
         
         image_1 = cv2.resize(image_1,(300,100))
         image_2 = cv2.resize(cv_image,(300,200))
@@ -114,12 +112,11 @@ class LoadFeature(object):
             
             cv2.imshow('Detection',res_r)   
             cv2.imshow('image',image_2)
-        except :
+        except:
             pass  
-        else : 
-            #bottle_found = rospy.ServiceProxy('/bottle', Empty)
-            #bottle_found()
-            pose_sub = rospy.Subscriber('/move_base/feedback', MoveBaseActionFeedback, move_base_pose_callback)
+        else: 
+            pose_sub = rospy.Subscriber('/odom', Odometry, self.my_position_callback)
+            self.pose_pub.publish(self.pose_result)
         cv2.waitKey(1)
 
     def prove(self):
@@ -130,18 +127,17 @@ class LoadFeature(object):
                     rospy.sleep(0.0001)
 
 
-#def main():
-
-my_service = rospy.Service('/bottle', Empty , my_callback)
-pose_result = Pose()
-load_feature_object = LoadFeature()
-rospy.init_node('detection_bottle_server', anonymous=True)
-load_feature_object.prove()
-try:
-    rospy.spin()
+def main():
+    rospy.init_node('load_feature_node', anonymous=True)
     
-except KeyboardInterrupt:
-    print("Shutting down")
-cv2.destroyAllWindows()
+    load_feature_object = LoadFeature()
+    load_feature_object.prove()
+    try:
+        rospy.spin()
+        
+    except KeyboardInterrupt:
+        print("Shutting down")
+    cv2.destroyAllWindows()
 
-#if __name__ == '__main__':
+if __name__ == '__main__':
+    main()

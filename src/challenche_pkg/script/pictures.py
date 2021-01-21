@@ -19,12 +19,14 @@ class Photo(object):
         except CvBridgeError as e:
             print(e)
 
-        #une_Image = cv2.imread('/home/user/catkin_ws/src/opencv_for_robotics_images/Unit_2/Course_images/test_image_1.jpg')
         cv2.imshow('image', img_result)
         cv2.imwrite('/home/user/catkin_ws/src/challenche_pkg/pictures/bottle.jpg',img_result)
         cv2.waitKey(250)
         rospy.spin()
-        cv2.destroyAllWindows()
-
+        
+        
+    
 rospy.init_node('service_server')
 showing_image_object = Photo()
+cv2.destroyAllWindows()
+
