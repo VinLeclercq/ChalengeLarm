@@ -3,8 +3,11 @@ import rospy
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 from std_srvs.srv import Empty, EmptyResponse # you import the service message python classes generated from Empty.srv.
-from geometry_msgs.msg import Point
+from geometry_msgs.msg import Pose, Point
+from sensor_msgs.msg import LaserScan
 from move_base_msgs.msg import MoveBaseAction, MoveBaseActionFeedback
+from tf.transformations import euler_from_quaternion, quaternion_from_euler
+from math import * 
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
@@ -18,16 +21,60 @@ class LoadFeature(object):
         self.image_sub = rospy.Subscriber("/camera/rgb/image_raw",Image,self.camera_callback)
         self.bridge_object = CvBridge()
         self.x = 4
-        self.pose_result = Point()
-        self.pose_pub = rospy.Publisher('/bottle', Point, queue_size=1)
+        self.pose_result = Pose()
+        self.bottle_pub = rospy.Publisher('/bottle', Pose, queue_size=1)
         
 
     def my_position_callback(self, msg):
-        self.pose_result = msg.pose.pose.position
+        self.pose_result = msg.pose.pose
+
+    def get_position(self, img):
+        distance = 0
+        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+        h,s,v= cv2.split(hsv)
+        ret_h, th_h = cv2.threshold(h,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+
+        # Remplissage des contours (equivalent a un operateur morpho de Fermeture)
+        im_floodfill = th_h.copy()
+        h, w = th_h.shape[:2]
+        mask = np.zeros((h+2, w+2), np.uint8)
+        cv2.floodFill(im_floodfill, mask, (0,0), 255)
+        im_floodfill_inv = cv2.bitwise_not(im_floodfill)
+        th = th_h | im_floodfill_inv
+
+        # Detection des objets
+        _,contours,_ = cv2.findContours(th,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+        for i in range (0, len(contours)) :
+            mask_BB_i = np.zeros((len(th),len(th[0])), np.uint8)
+            x,y,w,h = cv2.boundingRect(contours[i])
+            cv2.drawContours(mask_BB_i, contours, i, (255,255,255), -1)
+            BB_i=cv2.bitwise_and(img,img,mask=mask_BB_i)
+        
+        # Recuperation de la disatance de l objet par rapport au robot
+        if ((w>10) and (h>10)) :
+            if (w>h) : distance = w/54 #54 est la hauteur d une cannette debout a 1x du robot
+            else : distance = h/54
+        
+        # Recuperation de l'angle de la vision du robot par rapport a l axe de la map
+        quaternion_x = float(self.pose_result.orientation.x)
+        quaternion_y = self.pose_result.orientation.y
+        quaternion_z = self.pose_result.orientation.z
+        quaternion_w = self.pose_result.orientation.w
+        _,_,angle = euler_from_quaternion([quaternion_x, quaternion_y, quaternion_z, quaternion_w])
+
+        #calcul de la position de la bouteille
+        bottle_pos = Point()
+        bottle_pos.x = self.pose_result.position.x + float(distance) * cos(angle)
+        bottle_pos.y = self.pose_result.position.y + float(distance) * sin(angle)
+        bottle_pos.z = 0
+
+        return bottle_pos
+
+        
 
     def camera_callback(self,data):
         try:
-            # We select bgr8 because its the OpenCV encoding by default
+            #We select bgr8 because its the OpenCV encoding by default
             cv_image = self.bridge_object.imgmsg_to_cv2(data, desired_encoding="bgr8")
         except CvBridgeError as e:
             print(e)
@@ -108,15 +155,14 @@ class LoadFeature(object):
             #Create the perspective in the result 
             dst = cv2.perspectiveTransform(pts,M)
 
-            cv2.imshow('Points',preview_1)
-            
-            cv2.imshow('Detection',res_r)   
-            cv2.imshow('image',image_2)
         except:
             pass  
         else: 
             pose_sub = rospy.Subscriber('/odom', Odometry, self.my_position_callback)
-            self.pose_pub.publish(self.pose_result)
+            #laser_sub = rospy.Subscriber('/scan', LaserScan, self.my_scan_callback )
+            #self.bottle_pub.publish(self.scan_result)
+            bottle = self.get_position(image_2)
+            self.bottle_pub.publish(bottle)
         cv2.waitKey(1)
 
     def prove(self):
