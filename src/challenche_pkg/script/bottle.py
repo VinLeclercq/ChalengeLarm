@@ -22,6 +22,7 @@ class LoadFeature(object):
         self.image_sub = rospy.Subscriber("/camera/rgb/image_raw",Image,self.camera_callback)
         self.bridge_object = CvBridge()
         self.x = 4
+        self.list_pos = []
         self.pose_result = Pose()
         self.bottle = Point()
         self.bottle_pub = rospy.Publisher('/bottle', Point, queue_size=1)
@@ -33,8 +34,10 @@ class LoadFeature(object):
     #retourne les coordonees de la bouteilles visualisee avec en entree l image que percoit le robot
     def get_position(self, img):
         #initialisation de valeurs
-        distance = 0
+        distance = 0.0
         bottle_pos = Point()
+        is_in_list = False
+        approx = 2.0
 
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
         h,s,v= cv2.split(hsv)
@@ -56,11 +59,14 @@ class LoadFeature(object):
             cv2.drawContours(mask_BB_i, contours, i, (255,255,255), -1)
             BB_i=cv2.bitwise_and(img,img,mask=mask_BB_i)
         
+        #print(w, h)
+        
         # Recuperation de la disatance de l objet par rapport au robot
         if ((w>10) and (h>10)) :
-            if (w>h) : distance = w/54 #54 est la hauteur d une cannette debout a 1x du robot
-            else : distance = h/54
-        
+            if (w>h) : distance = float(54)/w #54 est la hauteur d une cannette debout a 1x du robot
+            else : distance =float(54)/h
+            #print(distance)
+
             # Recuperation de l'angle de la vision du robot par rapport a l axe de la map
             quaternion_x = float(self.pose_result.orientation.x)
             quaternion_y = self.pose_result.orientation.y
@@ -73,7 +79,21 @@ class LoadFeature(object):
             bottle_pos.y = self.pose_result.position.y + float(distance) * sin(angle)
             bottle_pos.z = 0
 
-        return bottle_pos
+            #
+            if self.list_pos :
+                for pos in self.list_pos :
+                    if ((bottle_pos.x - approx <= pos.x <= bottle_pos.x + approx) and (bottle_pos.y - approx <= pos.y <= bottle_pos.y + approx)) :
+                        #print(" I know this can")
+                        is_in_list = True
+                    #else : print("I don't know this can") 
+
+        if is_in_list == False and distance <= 1.5 :
+            print("new bottle") 
+            self.list_pos.append(bottle_pos)
+            print bottle_pos
+            return bottle_pos
+        else : return Point()
+
 
     def camera_callback(self,data):
         #recuperation de l image de la camera du robot
@@ -167,8 +187,8 @@ class LoadFeature(object):
             pose_sub = rospy.Subscriber('/odom', Odometry, self.my_position_callback)
             #recuperation des coordonnees de la bouteille
             self.bottle = self.get_position(image_2)
-            self.bottle_pub.publish(self.bottle)
-
+            if (self.bottle != Point()) :
+                self.bottle_pub.publish(self.bottle)
         cv2.waitKey(1)
 
     def prove(self):
