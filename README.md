@@ -66,6 +66,8 @@ roslaunch challenche_pkg navigation.launch
 roslaunch challenche_pkg mapping.launch
 ```
 
+- Dans une nouvelle console rentrer ```rostopic echo /bottle```
+
 - Utiliser l'outil *2D Nav Goal* sur RViz pour donner une destination **sur une zone grise connue** au robot (la carte se met à jour automatiquement)
 
 - Les positions des cannettes sont envoyées sur le topic ```/bottle``` et visible dans la console préalablement configurée
