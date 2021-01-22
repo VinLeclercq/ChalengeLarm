@@ -59,13 +59,10 @@ class LoadFeature(object):
             cv2.drawContours(mask_BB_i, contours, i, (255,255,255), -1)
             BB_i=cv2.bitwise_and(img,img,mask=mask_BB_i)
         
-        #print(w, h)
-        
         # Recuperation de la disatance de l objet par rapport au robot
         if ((w>12) and (h>12)) :
             if (w>h) : distance = w/float(54) #54 est la hauteur d une cannette debout a 1x du robot
             else : distance = h/float(54)
-            #print(distance)
 
             # Recuperation de l'angle de la vision du robot par rapport a l axe de la map
             quaternion_x = float(self.pose_result.orientation.x)
@@ -79,14 +76,13 @@ class LoadFeature(object):
             bottle_pos.y = self.pose_result.position.y + float(distance) * sin(angle)
             bottle_pos.z = 0
 
-            #
+            #compare la position trouvée avec celles enregistrées dans la liste de position
             if self.list_pos :
                 for pos in self.list_pos :
                     if ((bottle_pos.x - approx <= pos.x <= bottle_pos.x + approx) and (bottle_pos.y - approx <= pos.y <= bottle_pos.y + approx)) :
-                        #print(" I know this can")
-                        is_in_list = True
-                    #else : print("I don't know this can") 
+                        is_in_list = True 
 
+            #retourne la position de la bouteille et ajout de celle ci dans la liste de position 
             if is_in_list == False and distance <= 1.5 and bottle_pos.y != 0.0:
                 self.list_pos.append(bottle_pos)
                 return bottle_pos
