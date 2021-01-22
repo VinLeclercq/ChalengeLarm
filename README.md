@@ -95,3 +95,7 @@ roslaunch challenche_pkg exploration.launch
 ## Conclusion
 
 Cette UV était une première expérience en robotique pour nous, et ce fut un mois enrichissant. On regrette juste de ne pas avoir pu toucher à de vrais robots et pouvoir voir la magie opérer devant nos yeux.
+
+## Vidéo 
+
+https://www.youtube.com/watch?v=yp7Lcnkou-Q&feature=youtu.be&ab_channel=enzobernard
