@@ -30,8 +30,6 @@ source devel/setup.bash
 
 Vous devriez avoir le package `challenche_pkg` dans votre dossier `catkin_ws`
 
-![installation_repo](src/doc/install_git.png "le package challenche_pkg est dans catkin_ws/src")
-
 ## Lancer les différents challenges
 ### Configuration générale
 
@@ -41,9 +39,12 @@ Vous devriez avoir le package `challenche_pkg` dans votre dossier `catkin_ws`
 roslaunch larm challenge-x.launch
 ```
 
-- Ouvrez RViz et configurez de sorte à avoir :
-    - une Map (topic /map)
-    - le RobotModel
+- Ouvrez RViz et charger la configuration préfaite. Elle se trouve ici : ```catkin_ws/src/rviz/challenge_config.rviz```
+Elle contient :
+    - une map
+    - le modèle du robot
+    - le scanner pour mieux voir l'orientation du robot
+    - les markers pour le challenge 3
 
 ### Challenge 1
 
@@ -63,9 +64,11 @@ roslaunch challenche_pkg navigation.launch
 roslaunch challenche_pkg mapping.launch
 ```
 
+- Dans une nouvelle console rentrer ```rostopic echo /bottle```
+
 - Utiliser l'outil *2D Nav Goal* sur RViz pour donner une destination **sur une zone grise connue** au robot (la carte se met à jour automatiquement)
 
-- Les positions des cannettes sont envoyées sur le topic ```/bottle```
+- Les positions des cannettes sont envoyées sur le topic ```/bottle``` et visible dans la console préalablement configurée
 
 ### Challenge 3
 
@@ -75,8 +78,17 @@ roslaunch challenche_pkg mapping.launch
 roslaunch challenche_pkg exploration.launch
 ```
 
-- Ajouter l'outil *Markers* et sélectionner le bon topic sur RViz pour voir où vous placez vos points ci-après.
+- Dans une nouvelle console rentrer ```rostopic echo /bottle```
 
-- Utiliser l'outil *Publish Point* pour placer plusieurs points de sorte à avoir un polygone **fermé** et réutiliser l'outil dans ce polygone. Le robot devrait se mettre à explorer la zone de manière autonome.
+- Utiliser l'outil *Publish Point* pour placer plusieurs points de sorte à avoir un polygone **fermé** et réutiliser l'outil dans ce polygone **sur une zone grise connue**. Le robot devrait se mettre à explorer la zone de manière autonome.
 
-- Les positions des cannettes sont envoyées sur le topic ```/bottle```
+- Les positions des cannettes sont envoyées sur le topic ```/bottle``` et visible dans la console préalablement configurée
+
+## Difficultés rencontrées
+
+- Le scan du robot ne permet de "voir" les canettes, il est donc plus compliqué pour nous d'obtenir le positionnement exact.
+- L'utilisation et le paramétrage de *frontier_exploration* a été complexe. En effet, le robot ne parvient pas à tout explorer de manière autonome et se perd souvent dans des murs. Nous pensons que cela provient sûrement du rafraîchissement de la map qui n'est pas suffisamment élevé mais n'avons pas trouvé de solution.
+
+## Conclusion
+
+Cette UV était une première expérience en robotique pour nous, et ce fut un mois enrichissant. On regrette juste de ne pas avoir pu toucher à de vrais robots et pouvoir voir la magie opérer devant nos yeux.
