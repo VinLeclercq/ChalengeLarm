@@ -62,9 +62,9 @@ class LoadFeature(object):
         #print(w, h)
         
         # Recuperation de la disatance de l objet par rapport au robot
-        if ((w>10) and (h>10)) :
-            if (w>h) : distance = float(54)/w #54 est la hauteur d une cannette debout a 1x du robot
-            else : distance =float(54)/h
+        if ((w>12) and (h>12)) :
+            if (w>h) : distance = w/float(54) #54 est la hauteur d une cannette debout a 1x du robot
+            else : distance = h/float(54)
             #print(distance)
 
             # Recuperation de l'angle de la vision du robot par rapport a l axe de la map
@@ -87,12 +87,10 @@ class LoadFeature(object):
                         is_in_list = True
                     #else : print("I don't know this can") 
 
-        if is_in_list == False and distance <= 1.5 :
-            print("new bottle") 
-            self.list_pos.append(bottle_pos)
-            print bottle_pos
-            return bottle_pos
-        else : return Point()
+            if is_in_list == False and distance <= 1.5 and bottle_pos.y != 0.0:
+                self.list_pos.append(bottle_pos)
+                return bottle_pos
+            else : return Point()
 
 
     def camera_callback(self,data):
