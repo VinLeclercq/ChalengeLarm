@@ -1,4 +1,13 @@
 <launch>
-    <include file="$(find challenche_pkg)/launch/mapping.launch"/>
-    <include file="$(find challenche_pkg)/launch/frontier_explo.launch"/>
+    <!--NAV_STACK-->
+    <include file="$(find challenche_pkg)/launch/gmapping.launch"/>
+    <include file="$(find challenche_pkg)/launch/move_base.launch"/>
+    <include file="$(find frontier_exploration)/launch/global_map.launch"/>
+
+    <!--BOTTLE_RECOGNITION-->
+    <node pkg ="challenche_pkg"
+        type="bottle.py"
+        name="bottle"
+        output="screen">
+    </node>
 </launch>

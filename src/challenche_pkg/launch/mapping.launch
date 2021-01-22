@@ -1,5 +1,9 @@
 <launch>
-    <include file="$(find challenche_pkg)/launch/navigation.launch"/>
+    <!--NAV_STACK-->
+    <include file="$(find challenche_pkg)/launch/gmapping.launch"/>
+    <include file="$(find challenche_pkg)/launch/move_base.launch"/>
+
+    <!--BOTTLE_RECOGNITION-->
     <node pkg ="challenche_pkg"
         type="bottle.py"
         name="bottle"
