@@ -15,21 +15,27 @@ from nav_msgs.msg import Odometry
 
 
 class LoadFeature(object):
-
+    
+    #initialisation
     def __init__(self):
     
         self.image_sub = rospy.Subscriber("/camera/rgb/image_raw",Image,self.camera_callback)
         self.bridge_object = CvBridge()
         self.x = 4
         self.pose_result = Pose()
-        self.bottle_pub = rospy.Publisher('/bottle', Pose, queue_size=1)
+        self.bottle = Point()
+        self.bottle_pub = rospy.Publisher('/bottle', Point, queue_size=1)
         
-
+    #recuperation de la position du robot
     def my_position_callback(self, msg):
         self.pose_result = msg.pose.pose
 
+    #retourne les coordonees de la bouteilles visualisee avec en entree l image que percoit le robot
     def get_position(self, img):
+        #initialisation de valeurs
         distance = 0
+        bottle_pos = Point()
+
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
         h,s,v= cv2.split(hsv)
         ret_h, th_h = cv2.threshold(h,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
@@ -55,24 +61,22 @@ class LoadFeature(object):
             if (w>h) : distance = w/54 #54 est la hauteur d une cannette debout a 1x du robot
             else : distance = h/54
         
-        # Recuperation de l'angle de la vision du robot par rapport a l axe de la map
-        quaternion_x = float(self.pose_result.orientation.x)
-        quaternion_y = self.pose_result.orientation.y
-        quaternion_z = self.pose_result.orientation.z
-        quaternion_w = self.pose_result.orientation.w
-        _,_,angle = euler_from_quaternion([quaternion_x, quaternion_y, quaternion_z, quaternion_w])
+            # Recuperation de l'angle de la vision du robot par rapport a l axe de la map
+            quaternion_x = float(self.pose_result.orientation.x)
+            quaternion_y = self.pose_result.orientation.y
+            quaternion_z = self.pose_result.orientation.z
+            quaternion_w = self.pose_result.orientation.w
+            _,_,angle = euler_from_quaternion([quaternion_x, quaternion_y, quaternion_z, quaternion_w])
 
-        #calcul de la position de la bouteille
-        bottle_pos = Point()
-        bottle_pos.x = self.pose_result.position.x + float(distance) * cos(angle)
-        bottle_pos.y = self.pose_result.position.y + float(distance) * sin(angle)
-        bottle_pos.z = 0
+            #calcul de la position de la bouteille
+            bottle_pos.x = self.pose_result.position.x + float(distance) * cos(angle)
+            bottle_pos.y = self.pose_result.position.y + float(distance) * sin(angle)
+            bottle_pos.z = 0
 
         return bottle_pos
 
-        
-
     def camera_callback(self,data):
+        #recuperation de l image de la camera du robot
         try:
             #We select bgr8 because its the OpenCV encoding by default
             cv_image = self.bridge_object.imgmsg_to_cv2(data, desired_encoding="bgr8")
@@ -80,6 +84,7 @@ class LoadFeature(object):
             print(e)
             print("pas d image en entree de camera")
         
+        #recuperation de l image de la cannette pour la comparaison
         try:
             image_1 = cv2.imread('/home/user/catkin_ws/src/challenche_pkg/pictures/bottle.jpg',1)
         except CvBridgeError as e:
@@ -91,9 +96,9 @@ class LoadFeature(object):
 
         gray_1 = cv2.cvtColor(image_1, cv2.COLOR_RGB2GRAY)
 
+        #creation du masque rouge
         max_red = np.array([255,200,200])
         min_red = np.array([40,0,0])
-
         hsv = cv2.cvtColor(image_2, cv2.COLOR_BGR2HSV)
         mask_r = cv2.inRange(hsv, min_red, max_red)
         res_r = cv2.bitwise_and(image_2, image_2, mask= mask_r)
@@ -158,24 +163,22 @@ class LoadFeature(object):
         except:
             pass  
         else: 
+            #retourne les coordonnees du robot
             pose_sub = rospy.Subscriber('/odom', Odometry, self.my_position_callback)
-            #laser_sub = rospy.Subscriber('/scan', LaserScan, self.my_scan_callback )
-            #self.bottle_pub.publish(self.scan_result)
-            bottle = self.get_position(image_2)
-            self.bottle_pub.publish(bottle)
+            #recuperation des coordonnees de la bouteille
+            self.bottle = self.get_position(image_2)
+            self.bottle_pub.publish(self.bottle)
+
         cv2.waitKey(1)
 
     def prove(self):
             for self.x in range(4,1001,18):
                 for y in range (1,500):
-
-                   # print (self.x)
                     rospy.sleep(0.0001)
 
 
 def main():
     rospy.init_node('load_feature_node', anonymous=True)
-    
     load_feature_object = LoadFeature()
     load_feature_object.prove()
     try:
