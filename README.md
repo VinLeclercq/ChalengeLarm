@@ -58,13 +58,13 @@ roslaunch challenche_pkg navigation.launch
 
 ### Challenge 2
 
+- Dans une nouvelle console rentrer ```rostopic echo /bottle```
+
 - Lancer le launch de mapping
 
 ```bash
 roslaunch challenche_pkg mapping.launch
 ```
-
-- Dans une nouvelle console rentrer ```rostopic echo /bottle```
 
 - Utiliser l'outil *2D Nav Goal* sur RViz pour donner une destination **sur une zone grise connue** au robot (la carte se met à jour automatiquement)
 
@@ -88,6 +88,7 @@ roslaunch challenche_pkg exploration.launch
 
 - Le scan du robot ne permet de "voir" les canettes, il est donc plus compliqué pour nous d'obtenir le positionnement exact.
 - L'utilisation et le paramétrage de *frontier_exploration* a été complexe. En effet, le robot ne parvient pas à tout explorer de manière autonome et se perd souvent dans des murs. Nous pensons que cela provient sûrement du rafraîchissement de la map qui n'est pas suffisamment élevé mais n'avons pas trouvé de solution.
+- Lors de la localisation de cannettes, si le robot de voit pas de cannette il retourne un message d'erreur dans la console. La grosse partie en rouge peut ne pas s'afficher si on place un try-exept dans le code. Néanmoins nous n'avons pas réussi a affacer complètement l'erreur dans la console 
 
 ## Conclusion
 
