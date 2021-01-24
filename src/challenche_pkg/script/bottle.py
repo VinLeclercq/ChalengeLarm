@@ -76,7 +76,7 @@ class LoadFeature(object):
             bottle_pos.y = self.pose_result.position.y + float(distance) * sin(angle)
             bottle_pos.z = 0
 
-            #compare la position trouvée avec celles enregistrées dans la liste de position
+            #compare la position trouvee avec celles enregistrees dans la liste de position
             if self.list_pos :
                 for pos in self.list_pos :
                     if ((bottle_pos.x - approx <= pos.x <= bottle_pos.x + approx) and (bottle_pos.y - approx <= pos.y <= bottle_pos.y + approx)) :
